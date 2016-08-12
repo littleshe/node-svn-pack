@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>SVN Package</title>
+		<link rel="stylesheet" href="css/bootstrap.css">
+		<style type="text/css">
+			.list-group-item > .glyphicon{float: right;}
+		</style>
+	</head>
+	<body>
+		<div class="container" ms-controller="home">
+			<div ms-view></div>			
+		</div>
+		<script src="js/jquery.js"></script>
+		<script src="js/avalon.js"></script>
+		<script>
+
+			var item_post = function(action,rev){	
+				$.ajax({	
+						url: "/items/" + itemVM.id + "/"+ action +"/" + rev,
+						type: "POST",
+						dataType: "json",
+						success: function(data){	
+							window.location.reload()
+						} 
+					})
+			}
+
+			var indexVM = avalon.define({	
+				$id: "index",
+				items: [],
+				data: {	
+					svn_url: "",
+					name: ""
+				},
+				toggleAddForm: false,
+				add: function(){	
+					indexVM.toggleAddForm = true
+				},
+				submit: function(){	
+					$.ajax({	
+						url: "/items/add",
+						type: "POST",
+						dataType: "json",
+						data: {	
+							name: indexVM.data.name,
+							svn_url: indexVM.data.svn_url
+						},
+						success: function(data){	
+							window.location.reload()
+						}
+					})
+				},
+				cancel: function(){	
+					indexVM.toggleAddForm = false
+				}
+			})
+
+
+			var itemVM = avalon.define({	
+				$id: "item",
+				id: "",
+				name: "",
+				svn_url: "",
+				tag: "",
+				rev: "",
+				is_online: false,
+				is_init: false,
+				list: [],
+				is_pkg: function(cur_rev){	
+					return itemVM.is_online && (parseInt(cur_rev) > parseInt(itemVM.rev))
+				},
+				init: function(rev){	
+					item_post("init",rev)
+				},
+				online: function(rev){	
+					item_post("online",rev)
+				},
+				cancel: function(rev){	
+					item_post("unline",rev)
+				},
+				pkg: function(rev){	
+					item_post("pkg",rev)
+				}
+			})
+
+
+			require(["mmState"], function() {
+
+				avalon.define({	
+					$id: "home"
+				})
+
+				avalon.state("home",{	
+					controller: "home",
+					url: "/",
+					templateUrl: "tpl/index.html",
+					onEnter: function(){
+						$.getJSON("/items",function(data){	
+							indexVM.items = data
+						})
+					}
+				})
+
+				avalon.state("item",{	
+					controller: "home",
+					url: "/item/{id}",
+					templateUrl: "tpl/item.html",
+					onEnter: function(){
+						var id = this.params.id
+						$.getJSON("/items/"+id,function(data){	
+							for(var i in data){	
+								itemVM[i] = data[i]
+							}
+						})				
+					}
+				})
+
+				avalon.history.start({
+                    basepath: "/"
+                })
+
+				avalon.scan()
+
+  			})			
+
+
+		</script>
+	</body>
+</html>

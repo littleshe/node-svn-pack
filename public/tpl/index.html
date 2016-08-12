@@ -1,0 +1,24 @@
+<div ms-controller="index">
+	<br><br>
+	<button type="button" class="btn btn-default" ms-click="add()" ms-visible="!toggleAddForm">
+		<span class="glyphicon glyphicon-plus"></span> 新增SVN
+	</button>
+	<form class="form-inline" ms-visible="toggleAddForm">
+		<div class="form-group">
+			<input type="text" class="form-control" placeholder="项目名称" ms-duplex="data.name">
+		</div>
+		<div class="form-group">
+			<input type="text" class="form-control" placeholder="请输入SVN地址" ms-duplex="data.svn_url">
+		</div>
+		<button type="button" class="btn btn-primary" ms-click="submit()">确定</button>
+		<button type="button" class="btn btn-default" ms-click="cancel()">取消</button>
+	</form>
+	<br><br>
+	<ul class="list-group">
+		<li class="list-group-item" ms-repeat="items">
+			<!--<a href="javascript:void(0)" class="glyphicon glyphicon-remove" ms-click="del()"></a>-->
+			<a ms-href="#!/item/{{el.id}}" ms-attr-title="el.svn_url">{{el.name}}</a>
+		</li>
+	</ul>
+	
+</div>
